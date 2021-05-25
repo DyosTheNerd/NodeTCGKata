@@ -9,6 +9,22 @@ describe("basic start of turn draw", ()=>{
         expect(service.initializeBasicDeckForPlayerAndGame("myGameID", "PlayerA")).to.be.a("String")
     })
 
+    it ("should use different decks for different players", ()=>{
+        service.initializeBasicDeckForPlayerAndGame("myGameID", "PlayerB")
+
+        drawnCard = service.drawCard("myGameID", "PlayerA")
+
+        expect(service.getNumberOfRemainingCardsInDeck("myGameID", "PlayerB")).to.be.equal(20)
+    })
+
+    it ("should use different decks for different games with same player", ()=>{
+        service.initializeBasicDeckForPlayerAndGame("myGameID2", "PlayerA")
+
+        drawnCard = service.drawCard("myGameID", "PlayerA")
+
+        expect(service.getNumberOfRemainingCardsInDeck("myGameID2", "PlayerA")).to.be.equal(20)
+    })
+
     describe ("tests with the default basic deck", () => {
         beforeEach(()=>{
             service.initializeBasicDeckForPlayerAndGame("myGameID", "PlayerA")
@@ -67,8 +83,8 @@ describe("basic start of turn draw", ()=>{
             }
             expect(lastCost).to.be.equal(-2)
         })
-
-
     })
+
+
 
 })
