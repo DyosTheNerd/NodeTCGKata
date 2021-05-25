@@ -24,11 +24,50 @@ describe("basic start of turn draw", ()=>{
             expect(drawnCard.cost).to.be.greaterThanOrEqual(0)
         })
 
-        it("should decrease the number of cards remaining in the the deck by own after a draw", ()=>{
+        it("should decrease the number of cards remaining in the the deck by one after a draw", ()=>{
             initialDecksize = service.getNumberOfRemainingCardsInDeck("myGameID", "PlayerA")
             drawnCard = service.drawCard("myGameID", "PlayerA")
             expect(service.getNumberOfRemainingCardsInDeck("myGameID", "PlayerA")).to.be.equal(initialDecksize-1)
         })
+
+        it("drawing five cards should return at least one card with a different value", ()=>{
+            drawnCards = []
+            for (i = 0 ; i < 5; i++){
+                drawnCards.push(service.drawCard("myGameID", "PlayerA"))
+            }
+            drawnCards.sort((itemA, itemB)=>{itemA.cost < itemB.cost})
+            lastCost = -1
+            for (i in drawnCards){
+                item = drawnCards[i]
+                if (lastCost != item.cost && lastCost > -1){
+                    return
+                }
+                lastCost = item.cost
+
+            }
+            expect(lastCost).to.be.equal(-2)
+        })
+
+        it("should randomize the deck", ()=>{
+            drawnCards = []
+            let i = 0
+            for (i = 0 ; i < 5; i++){
+                drawnCards.push(service.drawCard("myGameID", "PlayerA"))
+                service.initializeBasicDeckForPlayerAndGame("myGameID", "PlayerA")
+            }
+            drawnCards.sort((itemA, itemB)=>{itemA.cost < itemB.cost})
+            lastCost = -1
+            for (i in drawnCards){
+                item = drawnCards[i]
+                if (lastCost != item.cost && lastCost > -1){
+                    return
+                }
+                lastCost = item.cost
+
+            }
+            expect(lastCost).to.be.equal(-2)
+        })
+
 
     })
 
