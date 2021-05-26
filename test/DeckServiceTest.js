@@ -1,6 +1,5 @@
 expect = require("chai").expect
-
-service = require("../services/DeckService")
+const service = require("../services/DeckService")
 
 describe("basic start of turn draw", ()=>{
 
