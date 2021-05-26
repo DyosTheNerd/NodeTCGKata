@@ -84,7 +84,4 @@ describe("basic start of turn draw", ()=>{
             expect(lastCost).to.be.equal(-2)
         })
     })
-
-
-
 })
