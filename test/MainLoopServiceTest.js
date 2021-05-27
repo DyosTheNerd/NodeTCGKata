@@ -27,6 +27,53 @@ describe("basic game setup", ()=>{
         deckService.initializeBasicDeckForPlayerAndGame = old
     })
 
+    it("should draw cards from the deck when starting the game", ()=>{
+        deckService = require("../services/DeckService")
+        deckCalls = {gameIDs : [], playerNames: []}
+
+        const old = deckService.drawCard
+
+        testCards = [0,0,1,1,2,2]
+
+        deckService.drawCard = function(gameID, playerName){
+            deckCalls.gameIDs.push(gameID)
+            deckCalls.playerNames.push(playerName)
+            return testCards.pop()
+        }
+        gameID = service.newGame(["playerA", "playerB"])
+
+        for (i = 0; i < 6; i++){
+            expect(deckCalls.gameIDs[i]).to.be.equal(gameID)
+        }
+        expect(deckCalls.playerNames.filter(item => item == "playerA")).to.be.an("Array").of.length(4)
+        expect(deckCalls.playerNames.filter(item => item == "playerB")).to.be.an("Array").of.length(3)
+
+        deckService.drawCard = old
+    })
+
+    it("should add cards to the hands when starting the game", ()=>{
+        const handService = require("../services/HandService")
+        const callParams =  {gameIDs : [], playerNames: [], cards : []}
+
+        const old = handService.addCardToHand
+
+        handService.addCardToHand = function(card, gameID, playerName){
+            callParams.gameIDs.push(gameID)
+            callParams.playerNames.push(playerName)
+            callParams.cards.push(card)
+            return true
+        }
+        gameID = service.newGame(["playerA", "playerB"])
+
+        for (i = 0; i < 6; i++){
+            expect(callParams.gameIDs[i]).to.be.equal(gameID)
+        }
+        expect(callParams.playerNames.filter(item => item == "playerA")).to.be.an("Array").of.length(4)
+        expect(callParams.playerNames.filter(item => item == "playerB")).to.be.an("Array").of.length(3)
+
+        handService.addCardToHand = old
+    })
+
 
     describe("game loop functions", ()=>
     {
@@ -45,7 +92,7 @@ describe("basic game setup", ()=>{
         })
 
         it("should have a method to query the cards in the hand of the current player", ()=>{
-            expect(service.getPlayerCardsInHand(gameID)).to.be.an("Array")
+            expect(service.getPlayerCardsInHand(gameID)).to.be.an("Array").with.length(4)
         })
 
         it("should have a method to return the current Player, and first player starts the game", ()=>{
@@ -59,6 +106,8 @@ describe("basic game setup", ()=>{
         it("should give 3 cards to player B on setup", ()=>{
             expect(service.getPlayerCardsInHand(gameID, "playerB")).to.be.an("Array").with.length(3)
         })
+
+
 
     })
 })

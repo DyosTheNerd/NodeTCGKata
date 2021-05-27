@@ -1,4 +1,5 @@
-deckService = require("./DeckService")
+const deckService = require("./DeckService")
+const handService = require("./HandService")
 
 let currentGames = {}
 
@@ -9,7 +10,13 @@ module.exports = {
         currentGames["gameID"].players = players
         players.forEach(pl =>{
             deckService.initializeBasicDeckForPlayerAndGame("gameID",pl)
+            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
+            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
+            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
         })
+
+        handService.addCardToHand(deckService.drawCard("gameID",players[0]),"gameID",players[0])
+
         return "gameID"
     },
     endTurn: function(currentPlayer, gameID){
