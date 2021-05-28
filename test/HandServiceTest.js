@@ -1,7 +1,12 @@
-expect = require("chai").expect
-let testedService = require("../services/HandService")
+const expect = require("chai").expect
+const testedService = require("../services/HandService")
 
 describe("basic Hand interface", ()=>{
+
+    beforeEach("initialze hand", ()=>{
+        testedService.initializeHand("gameID", "playerA" )
+    })
+
     it("should have a method to query a players hand for a game", ()=>{
         testedService.getHandForPlayer("playerA", "gameID")
     })
@@ -31,6 +36,18 @@ describe("basic Hand interface", ()=>{
 
         })
 
+    })
+
+    describe("mechanics for checking if cards are in hand", ()=>{
+        it ("should have a method to test if a specific card is in the hand of a player for a game", ()=>{
+            testedService.addCardToHand({cost:0},"playerA", "gameID")
+            expect(testedService.isCardInHand("gameID", "playerA", {cost:0}))
+        })
+
+        it ("should have a method to test if a specific card is in the hand of a player for a game", ()=>{
+            testedService.addCardToHand({cost:0},"playerA", "gameID")
+            expect(testedService.isCardInHand("gameID", "playerA", {cost:0})).to.be.equal(true)
+        })
     })
 
 })

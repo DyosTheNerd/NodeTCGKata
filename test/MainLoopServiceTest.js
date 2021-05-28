@@ -33,7 +33,7 @@ describe("basic game setup", ()=>{
 
         const old = deckService.drawCard
 
-        testCards = [0,0,1,1,2,2]
+        testCards = [0,0,1,1,2,2,3]
 
         deckService.drawCard = function(gameID, playerName){
             deckCalls.gameIDs.push(gameID)
@@ -73,6 +73,62 @@ describe("basic game setup", ()=>{
 
         handService.addCardToHand = old
     })
+
+    it("should have a function to play a card from hand for the active player", ()=>{
+        deckService = require("../services/DeckService")
+
+        const oldFunc = deckService.drawCard
+        deckService.drawCard = function(gameID, playerName){
+
+            return {cost:0}
+        }
+        expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0})).to.be.equal(true)
+
+        deckService.drawCard = oldFunc
+    })
+
+    describe("playCardFromPlayerHand spec", ()=>{
+
+        it("should prevent a play for an inactive match", ()=>{
+            deckService = require("../services/DeckService")
+
+            errorObj = service.playCardFromPlayerHand("notExistingGame","playerA",{cost:0})
+            expect(errorObj.error).to.be.equal("gameNotFound")
+        })
+
+        it("should prevent to play a card from hand for the inactive player", ()=>{
+            deckService = require("../services/DeckService")
+
+            errorObj = service.playCardFromPlayerHand("gameID","playerB",{cost:0})
+            expect(errorObj.error).to.be.equal("wrongPlayer")
+        })
+
+        it("should check if the card is in the active players hand", ()=>{
+            handService = require("../services/HandService")
+
+            let called = false
+
+            handService.isCardInHand = function(gameID, playerName, card){
+                called = true
+                return true
+            }
+            service.playCardFromPlayerHand("gameID","playerA",{cost:0})
+            expect(called).to.be.equal(true)
+        })
+
+        it("should prevent to play a card that is in not the active players hand", ()=>{
+            handService = require("../services/HandService")
+
+
+            handService.isCardInHand = function(gameID, playerName, card){
+                return false
+            }
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0}).error).to.be.equal("cardNotFound")
+        })
+
+    })
+
 
 
     describe("game loop functions", ()=>
@@ -122,6 +178,7 @@ describe("basic game setup", ()=>{
 
 
         })
+
 
 
         it("should have a method to query current remaining mana of active player", () => {

@@ -31,8 +31,11 @@ module.exports = {
     initializeHand : function (gameID,playerID){
         const theHand = getHandID(gameID,playerID)
         hands[theHand] = []
+    },
 
-
+    isCardInHand : function(gameID, playerName, card){
+        return true
     }
+
 
 }

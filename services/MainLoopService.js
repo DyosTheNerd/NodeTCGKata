@@ -53,6 +53,21 @@ module.exports = {
 
     getCurrentPlayer : function (gameID){
         return currentGames[gameID].currentPlayer
+    },
+
+    playCardFromPlayerHand : function (gameID, player, card){
+        if (currentGames[gameID] === undefined){
+            return {error: 'gameNotFound'}
+        }
+
+        if (player !== currentGames[gameID].currentPlayer){
+            return {error: 'wrongPlayer'}
+        }
+        if (!handService.isCardInHand(gameID, player, card)){
+            return {error: 'cardNotFound'}
+        }
+
+        return true
     }
 
 
