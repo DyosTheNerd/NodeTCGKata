@@ -27,5 +27,12 @@ module.exports = {
         theHand.push(card)
 
         return true
+    },
+    initializeHand : function (gameID,playerID){
+        const theHand = getHandID(gameID,playerID)
+        hands[theHand] = []
+
+
     }
+
 }
