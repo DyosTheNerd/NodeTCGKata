@@ -75,7 +75,7 @@ describe("basic game setup", ()=>{
     })
 
     it("should have a function to play a card from hand for the active player", ()=>{
-        deckService = require("../services/DeckService")
+        const deckService = require("../services/DeckService")
 
         const oldFunc = deckService.drawCard
         deckService.drawCard = function(gameID, playerName){
@@ -90,23 +90,25 @@ describe("basic game setup", ()=>{
     })
 
     describe("playCardFromPlayerHand spec", ()=>{
-
+        beforeEach(() =>{
+            gameID = service.newGame(["playerA", "playerB"])
+        })
         it("should prevent a play for an inactive match", ()=>{
-            deckService = require("../services/DeckService")
 
-            errorObj = service.playCardFromPlayerHand("notExistingGame","playerA",{cost:0})
+
+            const errorObj = service.playCardFromPlayerHand("notExistingGame","playerA",{cost:0})
             expect(errorObj.error).to.be.equal("gameNotFound")
         })
 
         it("should prevent to play a card from hand for the inactive player", ()=>{
-            deckService = require("../services/DeckService")
 
-            errorObj = service.playCardFromPlayerHand("gameID","playerB",{cost:0})
+
+            const errorObj = service.playCardFromPlayerHand("gameID","playerB",{cost:0})
             expect(errorObj.error).to.be.equal("wrongPlayer")
         })
 
         it("should check if the card is in the active players hand", ()=>{
-            handService = require("../services/HandService")
+            const handService = require("../services/HandService")
 
             let called = false
 
@@ -119,16 +121,68 @@ describe("basic game setup", ()=>{
         })
 
         it("should prevent to play a card that is in not the active players hand", ()=>{
-            handService = require("../services/HandService")
+            const handService = require("../services/HandService")
 
-
+            let old = handService.isCardInHand
             handService.isCardInHand = function(gameID, playerName, card){
                 return false
             }
 
             expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0}).error).to.be.equal("cardNotFound")
+
+            handService.isCardInHand = old
         })
 
+        it ("should fail if the player does not have enough mana to play a card", () =>{
+            const handService = require("../services/HandService")
+
+            let old = handService.isCardInHand
+            handService.isCardInHand = function(gameID, playerName, card){
+                return true
+            }
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:10}).error).to.be.equal("notEnoughMana")
+
+            handService.isCardInHand = old
+        })
+
+        it ("should let the player play cards up as long as they have enough mana to play for them", () =>{
+            const handService = require("../services/HandService")
+
+            let old = handService.isCardInHand
+            handService.isCardInHand = function(gameID, playerName, card){
+                return true
+            }
+
+            service.playCardFromPlayerHand("gameID","playerA",{cost:1}) // play the first card is ok, since the player starts with 1 mana
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
+
+            handService.isCardInHand = old
+        })
+
+        it ("should refill the mana of each player at the start of their new turn", () =>{
+            const handService = require("../services/HandService")
+
+            let old = handService.isCardInHand
+            handService.isCardInHand = function(gameID, playerName, card){
+                return true
+            }
+
+            service.playCardFromPlayerHand("gameID","playerA",{cost:1}) // spend all available mana (1) on the first turn
+
+            service.endTurn("gameID", "playerA")
+
+            service.endTurn("gameID", "playerB")
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.undefined
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.undefined
+
+            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
+
+            handService.isCardInHand = old
+        })
     })
 
 

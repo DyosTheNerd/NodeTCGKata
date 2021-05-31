@@ -18,10 +18,14 @@ module.exports = {
         })
 
         handService.addCardToHand("gameID",players[0],deckService.drawCard("gameID",players[0]))
-        otherPlayer = players[1]
+        let otherPlayer = players[1]
         currentGames["gameID"].maxMana = {}
         currentGames["gameID"].maxMana[currentGames["gameID"].currentPlayer] = 1
         currentGames["gameID"].maxMana[otherPlayer]   = 0
+
+        currentGames["gameID"].currentMana = {}
+        currentGames["gameID"].currentMana[currentGames["gameID"].currentPlayer] = 1
+        currentGames["gameID"].currentMana[otherPlayer]   = 0
 
 
         return "gameID"
@@ -33,6 +37,7 @@ module.exports = {
 
         currentGames[gameID].currentPlayer = currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
         currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer] += currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer]== 10? 0 : 1
+        currentGames["gameID"].currentMana[currentGames[gameID].currentPlayer] = currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer]
 
         handService.addCardToHand(gameID,currentGames[gameID].currentPlayer,deckService.drawCard(gameID,currentGames[gameID].currentPlayer))
 
@@ -56,16 +61,23 @@ module.exports = {
     },
 
     playCardFromPlayerHand : function (gameID, player, card){
-        if (currentGames[gameID] === undefined){
+        const theGame = currentGames[gameID]
+        if (theGame === undefined){
             return {error: 'gameNotFound'}
         }
 
-        if (player !== currentGames[gameID].currentPlayer){
+        if (player !== theGame.currentPlayer){
             return {error: 'wrongPlayer'}
         }
         if (!handService.isCardInHand(gameID, player, card)){
             return {error: 'cardNotFound'}
         }
+        if (theGame.currentMana[theGame.currentPlayer] < card.cost){
+            return {error: 'notEnoughMana'}
+        }
+
+        console.log(theGame.currentMana[theGame.currentPlayer])
+        theGame.currentMana[theGame.currentPlayer] -= card.cost
 
         return true
     }
