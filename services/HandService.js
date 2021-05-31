@@ -17,7 +17,7 @@ module.exports = {
 
         return getHand(gameID,playerID)
     },
-    addCardToHand : function(card, gameID, playerID){
+    addCardToHand : function(gameID, playerID, card){
 
         const theHand = getHand(gameID,playerID)
         if (theHand.length == 5){
@@ -33,8 +33,19 @@ module.exports = {
         hands[theHand] = []
     },
 
-    isCardInHand : function(gameID, playerName, card){
-        return true
+    isCardInHand : function(gameID, playerID, card){
+        const hand = getHand(gameID,playerID)
+        let found = false
+        console.log(card.cost)
+        console.log(hand.length)
+        hand.forEach(cardFromHand =>{
+            console.log(cardFromHand.cost)
+            console.log(cardFromHand.cost == card.cost)
+            if(cardFromHand.cost == card.cost){
+                found = true
+            }
+        })
+        return found
     }
 
 

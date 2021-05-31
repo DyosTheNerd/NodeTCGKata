@@ -57,7 +57,7 @@ describe("basic game setup", ()=>{
 
         const old = handService.addCardToHand
 
-        handService.addCardToHand = function(card, gameID, playerName){
+        handService.addCardToHand = function( gameID, playerName,card){
             callParams.gameIDs.push(gameID)
             callParams.playerNames.push(playerName)
             callParams.cards.push(card)
@@ -82,6 +82,8 @@ describe("basic game setup", ()=>{
 
             return {cost:0}
         }
+        service.endTurn("playerA", "gameID")
+        service.endTurn("playerB", "gameID")
         expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0})).to.be.equal(true)
 
         deckService.drawCard = oldFunc

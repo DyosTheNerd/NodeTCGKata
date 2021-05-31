@@ -12,12 +12,12 @@ module.exports = {
         players.forEach(pl =>{
             deckService.initializeBasicDeckForPlayerAndGame("gameID",pl)
             handService.initializeHand("gameID",pl)
-            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
-            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
-            handService.addCardToHand(deckService.drawCard("gameID",pl),"gameID",pl)
+            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
+            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
+            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
         })
 
-        handService.addCardToHand(deckService.drawCard("gameID",players[0]),"gameID",players[0])
+        handService.addCardToHand("gameID",players[0],deckService.drawCard("gameID",players[0]))
         otherPlayer = players[1]
         currentGames["gameID"].maxMana = {}
         currentGames["gameID"].maxMana[currentGames["gameID"].currentPlayer] = 1
@@ -34,7 +34,7 @@ module.exports = {
         currentGames[gameID].currentPlayer = currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
         currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer] += currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer]== 10? 0 : 1
 
-        handService.addCardToHand(deckService.drawCard(gameID,currentGames[gameID].currentPlayer),gameID,currentGames[gameID].currentPlayer)
+        handService.addCardToHand(gameID,currentGames[gameID].currentPlayer,deckService.drawCard(gameID,currentGames[gameID].currentPlayer))
 
         return currentGames[gameID].currentPlayer
     },
