@@ -82,8 +82,8 @@ describe("basic game setup", ()=>{
 
             return {cost:0}
         }
-        service.endTurn("playerA", "gameID")
-        service.endTurn("playerB", "gameID")
+        service.endTurn( "gameID","playerA")
+        service.endTurn( "gameID","playerB")
         expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0})).to.be.equal(true)
 
         deckService.drawCard = oldFunc
@@ -140,15 +140,15 @@ describe("basic game setup", ()=>{
         })
         it("should have a method to end a players turn", () => {
 
-            expect(service.endTurn("playerA", gameID)).to.be.equal("playerB", "other player name")
+            expect(service.endTurn( gameID,"playerA")).to.be.equal("playerB", "other player name")
         })
         it("after first turn was ended, current player should be player B", ()=>{
-            service.endTurn("playerA", gameID)
+            service.endTurn(gameID, "playerA")
             expect(service.getCurrentPlayer(gameID)).to.be.equal("playerB", "other player name")
         })
 
         it("should prevent the end turn action, when a different player is handed and return false", ()=>{
-            expect(service.endTurn("playerB", gameID)).to.be.equal(false)
+            expect(service.endTurn( gameID,"playerB")).to.be.equal(false)
             expect(service.getCurrentPlayer(gameID)).to.be.equal("playerA")
         })
 
@@ -159,20 +159,20 @@ describe("basic game setup", ()=>{
         })
 
         it("should increase max mana of a player everytime that players turn starts", ()=>{
-            service.endTurn("playerA", gameID)
+            service.endTurn(gameID,"playerA")
 
             expect(service.getCurrentPlayerMaxMana(gameID)).to.be.equal(1)
-            service.endTurn("playerB", gameID)
+            service.endTurn(gameID,"playerB")
             expect(service.getCurrentPlayerMaxMana(gameID)).to.be.equal(2)
-            service.endTurn("playerA", gameID)
+            service.endTurn(gameID, "playerA")
             expect(service.getCurrentPlayerMaxMana(gameID)).to.be.equal(2)
 
         })
 
         it("should only increase the max mana of a playerup to 10", ()=>{
             for (i = 0; i < 13; i ++){
-                service.endTurn("playerA", gameID)
-                service.endTurn("playerB", gameID)
+                service.endTurn( gameID,"playerA")
+                service.endTurn( gameID,"playerB")
             }
 
 
@@ -204,11 +204,11 @@ describe("basic game setup", ()=>{
         })
 
         it("should draw a card at the beginning of a players turn", ()=>{
-            service.endTurn("playerA", gameID)
+            service.endTurn(gameID,"playerA")
 
             expect(service.getPlayerCardsInHand(gameID, "playerB")).to.be.an("Array").with.length(4)
 
-            service.endTurn("playerB", gameID)
+            service.endTurn(gameID, "playerB")
 
             expect(service.getPlayerCardsInHand(gameID, "playerA")).to.be.an("Array").with.length(5)
         })

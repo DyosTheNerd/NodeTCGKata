@@ -26,7 +26,7 @@ module.exports = {
 
         return "gameID"
     },
-    endTurn: function(currentPlayer, gameID){
+    endTurn: function(gameID, currentPlayer){
         if (currentPlayer !== currentGames[gameID].currentPlayer){
             return false
         }
