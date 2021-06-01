@@ -3,13 +3,22 @@ const handService = require("./HandService")
 
 let currentGames = {}
 
+getInactivePlayer = function(gameID){
+    return currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
+}
+
 
 module.exports = {
     newGame : function (players){
         currentGames["gameID"] = {}
         currentGames["gameID"].players = players
         currentGames["gameID"].currentPlayer = players[0]
+
+        currentGames["gameID"].currentLife = {}
+
         players.forEach(pl =>{
+            currentGames["gameID"].currentLife[pl] = 30
+
             deckService.initializeBasicDeckForPlayerAndGame("gameID",pl)
             handService.initializeHand("gameID",pl)
             handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
@@ -28,6 +37,8 @@ module.exports = {
         currentGames["gameID"].currentMana[otherPlayer]   = 0
 
 
+
+
         return "gameID"
     },
     endTurn: function(gameID, currentPlayer){
@@ -44,7 +55,7 @@ module.exports = {
         return currentGames[gameID].currentPlayer
     },
     getCurrentPlayerMaxMana: function(gameID){
-        return currentGames["gameID"].maxMana[this.getCurrentPlayer(gameID)]
+        return currentGames[gameID].maxMana[this.getCurrentPlayer(gameID)]
     },
     getCurrentPlayerRemainingMana : function(gameID){
         return 1
@@ -76,10 +87,23 @@ module.exports = {
             return {error: 'notEnoughMana'}
         }
 
-        console.log(theGame.currentMana[theGame.currentPlayer])
+        if(theGame.isOver){
+            return {error: 'gameOver'}
+        }
+
         theGame.currentMana[theGame.currentPlayer] -= card.cost
 
+        theGame.currentLife[getInactivePlayer(gameID)] -= card.cost
+
+        if(theGame.currentLife[getInactivePlayer(gameID)] <= 0){
+            theGame.isOver = true
+            theGame.winner = theGame.currentPlayer
+        }
+
         return true
+    },
+    getPlayerLifePoints : function(gameID, playerID){
+        return currentGames[gameID].currentLife[playerID]
     }
 
 

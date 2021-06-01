@@ -36,11 +36,9 @@ module.exports = {
     isCardInHand : function(gameID, playerID, card){
         const hand = getHand(gameID,playerID)
         let found = false
-        console.log(card.cost)
-        console.log(hand.length)
+
         hand.forEach(cardFromHand =>{
-            console.log(cardFromHand.cost)
-            console.log(cardFromHand.cost == card.cost)
+
             if(cardFromHand.cost == card.cost){
                 found = true
             }

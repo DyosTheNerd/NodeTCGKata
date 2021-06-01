@@ -185,7 +185,74 @@ describe("basic game setup", ()=>{
         })
     })
 
+    describe("provision of life points function", ()=>{
+        const handService = require("../services/HandService")
+        let old
+        let gameID
+        before(()=>{
+            old = handService.isCardInHand
+            handService.isCardInHand = function(gameID, playerName, card){
+                return true
+            }
+        })
+        after(()=>{
+            handService.isCardInHand = old
+        })
 
+        beforeEach(()=>{
+            gameID = service.newGame(["playerA", "playerB"])
+        })
+
+
+        it("should provide a function to query players life", ()=>{
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(30)
+        })
+
+        it("should decrease the life of the second player after first player played a card",()=>{
+            service.playCardFromPlayerHand(gameID,"playerA",{cost:1})
+            expect(service.getPlayerLifePoints(gameID, "playerB")).to.be.equal(29)
+        })
+
+        it("should decrease the life of the first player after the second player played a card",()=>{
+            service.endTurn(gameID,"playerA")
+            service.endTurn(gameID,"playerB")
+            service.endTurn(gameID,"playerA")
+            service.playCardFromPlayerHand(gameID,"playerB",{cost:2})
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(28)
+        })
+
+        it("should decrease the life of both players independently", ()=>{
+            service.playCardFromPlayerHand(gameID,"playerA",{cost:1})
+            expect(service.getPlayerLifePoints(gameID, "playerB")).to.be.equal(29)
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(30)
+
+            service.endTurn(gameID,"playerA")
+            service.endTurn(gameID,"playerB")
+            service.endTurn(gameID,"playerA")
+            service.playCardFromPlayerHand(gameID,"playerB",{cost:2})
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(28)
+            expect(service.getPlayerLifePoints(gameID, "playerB")).to.be.equal(29)
+
+        })
+
+        it("should prevent players from playing more cards after a player reaches 0 life", ()=>{
+            for (let i = 0; i< 5 ; i++){
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+
+            for (let i = 0; i< 5 ; i++){
+                service.playCardFromPlayerHand(gameID,"playerA",{cost:6})
+                expect(service.getPlayerLifePoints(gameID, "playerB")).to.be.equal(30 - (i+1)*6)
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+            expect(service.getPlayerLifePoints(gameID, "playerB")).to.be.equal(0)
+
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:1}).error).to.be.equal("gameOver")
+        })
+
+    })
 
     describe("game loop functions", ()=>
     {
