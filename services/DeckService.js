@@ -28,14 +28,14 @@ module.exports = {
     },
 
     getNumberOfRemainingCardsInDeck : function(gameID, playerName){
-        deckID = getDeckID(gameID,playerName)
-        current = decks[deckID]
+        let deckID = getDeckID(gameID,playerName)
+        let current = decks[deckID]
         return current.length
     },
 
     drawCard: function(gameID, playerName){
-        deckID = getDeckID(gameID,playerName)
-        current = decks[deckID]
+        let deckID = getDeckID(gameID,playerName)
+        let current = decks[deckID]
 
         return {cost: current.pop()}
     }

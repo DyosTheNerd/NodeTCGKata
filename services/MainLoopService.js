@@ -7,58 +7,79 @@ getInactivePlayer = function(gameID){
     return currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
 }
 
+let gameIDCounter = 0
+
+generateNewGameID = function(){
+    gameIDCounter += 1
+    return "gameid" + gameIDCounter
+}
+
+setupBasicsAndPlayers = function (gameid, players){
+    currentGames[gameid] = {}
+    currentGames[gameid].players = players
+    currentGames[gameid].currentLife = {}
+    currentGames[gameid].maxMana = {}
+    currentGames[gameid].currentMana = {}
+    players.forEach(pl=>{
+        currentGames[gameid].maxMana[pl] = 0
+        currentGames[gameid].currentMana[pl] = 0
+        currentGames[gameid].currentLife[pl] = 0
+    })
+}
+
+setupHands = function(gameid){
+
+}
+
+startTurnForPlayer = function(gameID, nextPlayer){
+
+    currentGames[gameID].currentPlayer = nextPlayer
+    currentGames[gameID].maxMana[currentGames[gameID].currentPlayer] += currentGames[gameID].maxMana[currentGames[gameID].currentPlayer] === 10? 0 : 1
+    currentGames[gameID].currentMana[currentGames[gameID].currentPlayer] = currentGames[gameID].maxMana[currentGames[gameID].currentPlayer]
+
+    handService.addCardToHand(gameID,currentGames[gameID].currentPlayer,deckService.drawCard(gameID,currentGames[gameID].currentPlayer))
+
+    return currentGames[gameID].currentPlayer
+}
 
 module.exports = {
     newGame : function (players){
-        currentGames["gameID"] = {}
-        currentGames["gameID"].players = players
-        currentGames["gameID"].currentPlayer = players[0]
 
-        currentGames["gameID"].currentLife = {}
+        let gameid = generateNewGameID()
+
+        setupBasicsAndPlayers(gameid,players)
+
+
 
         players.forEach(pl =>{
-            currentGames["gameID"].currentLife[pl] = 30
+            currentGames[gameid].currentLife[pl] = 30
 
-            deckService.initializeBasicDeckForPlayerAndGame("gameID",pl)
-            handService.initializeHand("gameID",pl)
-            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
-            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
-            handService.addCardToHand("gameID",pl,deckService.drawCard("gameID",pl))
+            deckService.initializeBasicDeckForPlayerAndGame(gameid,pl)
+            handService.initializeHand(gameid,pl)
+            handService.addCardToHand(gameid,pl,deckService.drawCard(gameid,pl))
+            handService.addCardToHand(gameid,pl,deckService.drawCard(gameid,pl))
+            handService.addCardToHand(gameid,pl,deckService.drawCard(gameid,pl))
         })
 
-        handService.addCardToHand("gameID",players[0],deckService.drawCard("gameID",players[0]))
-        let otherPlayer = players[1]
-        currentGames["gameID"].maxMana = {}
-        currentGames["gameID"].maxMana[currentGames["gameID"].currentPlayer] = 1
-        currentGames["gameID"].maxMana[otherPlayer]   = 0
-
-        currentGames["gameID"].currentMana = {}
-        currentGames["gameID"].currentMana[currentGames["gameID"].currentPlayer] = 1
-        currentGames["gameID"].currentMana[otherPlayer]   = 0
+        startTurnForPlayer(gameid,players[0])
 
 
 
-
-        return "gameID"
+        return gameid
     },
     endTurn: function(gameID, currentPlayer){
         if (currentPlayer !== currentGames[gameID].currentPlayer){
             return false
         }
+        let nextPlayer = currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
 
-        currentGames[gameID].currentPlayer = currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
-        currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer] += currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer]== 10? 0 : 1
-        currentGames["gameID"].currentMana[currentGames[gameID].currentPlayer] = currentGames["gameID"].maxMana[currentGames[gameID].currentPlayer]
-
-        handService.addCardToHand(gameID,currentGames[gameID].currentPlayer,deckService.drawCard(gameID,currentGames[gameID].currentPlayer))
-
-        return currentGames[gameID].currentPlayer
+        return startTurnForPlayer(gameID,nextPlayer)
     },
     getCurrentPlayerMaxMana: function(gameID){
         return currentGames[gameID].maxMana[this.getCurrentPlayer(gameID)]
     },
     getCurrentPlayerRemainingMana : function(gameID){
-        return 1
+        return currentGames[gameID].currentMana[this.getCurrentPlayer(gameID)]
     },
 
     getPlayerCardsInHand : function(gameID, player){

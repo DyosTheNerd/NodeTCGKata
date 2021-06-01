@@ -3,8 +3,16 @@ expect = require("chai").expect
 const service = require("../services/MainLoopService")
 
 describe("basic game setup", ()=>{
+
+
+
     it("should have a method to open a game between two players", ()=>{
         expect(service.newGame(["playerA", "playerB"])).to.be.a("String")
+    })
+
+    it ("should open games with different ids each time for the same players",()=>{
+        let firstgame = service.newGame(["playerA", "playerB"])
+        expect(service.newGame(["playerA", "playerB"])).to.be.not.equal(firstgame)
     })
 
     it("should initialize a basic deck for each player when starting a regular game", ()=>{
@@ -16,8 +24,9 @@ describe("basic game setup", ()=>{
         deckService.initializeBasicDeckForPlayerAndGame = function(gameID, playerName){
             deckCalls.gameIDs.push(gameID)
             deckCalls.playerNames.push(playerName)
+            old(gameID,playerName)
         }
-        gameID = service.newGame(["playerA", "playerB"])
+        let gameID = service.newGame(["playerA", "playerB"])
 
         expect(deckCalls.gameIDs[0]).to.be.equal(gameID)
         expect(deckCalls.gameIDs[1]).to.be.equal(gameID)
@@ -28,25 +37,25 @@ describe("basic game setup", ()=>{
     })
 
     it("should draw cards from the deck when starting the game", ()=>{
-        deckService = require("../services/DeckService")
-        deckCalls = {gameIDs : [], playerNames: []}
+        const deckService = require("../services/DeckService")
+        const deckCalls = {gameIDs : [], playerNames: []}
 
         const old = deckService.drawCard
 
-        testCards = [0,0,1,1,2,2,3]
+        let testCards = [0,0,1,1,2,2,3]
 
         deckService.drawCard = function(gameID, playerName){
             deckCalls.gameIDs.push(gameID)
             deckCalls.playerNames.push(playerName)
             return testCards.pop()
         }
-        gameID = service.newGame(["playerA", "playerB"])
+        let gameID = service.newGame(["playerA", "playerB"])
 
         for (i = 0; i < 6; i++){
             expect(deckCalls.gameIDs[i]).to.be.equal(gameID)
         }
-        expect(deckCalls.playerNames.filter(item => item == "playerA")).to.be.an("Array").of.length(4)
-        expect(deckCalls.playerNames.filter(item => item == "playerB")).to.be.an("Array").of.length(3)
+        expect(deckCalls.playerNames.filter(item => item === "playerA")).to.be.an("Array").of.length(4)
+        expect(deckCalls.playerNames.filter(item => item === "playerB")).to.be.an("Array").of.length(3)
 
         deckService.drawCard = old
     })
@@ -63,7 +72,7 @@ describe("basic game setup", ()=>{
             callParams.cards.push(card)
             return true
         }
-        gameID = service.newGame(["playerA", "playerB"])
+        let gameID = service.newGame(["playerA", "playerB"])
 
         for (i = 0; i < 6; i++){
             expect(callParams.gameIDs[i]).to.be.equal(gameID)
@@ -75,6 +84,10 @@ describe("basic game setup", ()=>{
     })
 
     it("should have a function to play a card from hand for the active player", ()=>{
+
+        let gameID = service.newGame(["playerA", "playerB"])
+
+
         const deckService = require("../services/DeckService")
 
         const oldFunc = deckService.drawCard
@@ -82,14 +95,15 @@ describe("basic game setup", ()=>{
 
             return {cost:0}
         }
-        service.endTurn( "gameID","playerA")
-        service.endTurn( "gameID","playerB")
-        expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0})).to.be.equal(true)
+        service.endTurn( gameID,"playerA")
+        service.endTurn( gameID,"playerB")
+        expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:0})).to.be.equal(true)
 
         deckService.drawCard = oldFunc
     })
 
     describe("playCardFromPlayerHand spec", ()=>{
+        let gameID = ""
         beforeEach(() =>{
             gameID = service.newGame(["playerA", "playerB"])
         })
@@ -103,7 +117,7 @@ describe("basic game setup", ()=>{
         it("should prevent to play a card from hand for the inactive player", ()=>{
 
 
-            const errorObj = service.playCardFromPlayerHand("gameID","playerB",{cost:0})
+            const errorObj = service.playCardFromPlayerHand(gameID,"playerB",{cost:0})
             expect(errorObj.error).to.be.equal("wrongPlayer")
         })
 
@@ -116,7 +130,7 @@ describe("basic game setup", ()=>{
                 called = true
                 return true
             }
-            service.playCardFromPlayerHand("gameID","playerA",{cost:0})
+            service.playCardFromPlayerHand(gameID,"playerA",{cost:0})
             expect(called).to.be.equal(true)
         })
 
@@ -128,7 +142,7 @@ describe("basic game setup", ()=>{
                 return false
             }
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:0}).error).to.be.equal("cardNotFound")
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:0}).error).to.be.equal("cardNotFound")
 
             handService.isCardInHand = old
         })
@@ -141,7 +155,7 @@ describe("basic game setup", ()=>{
                 return true
             }
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:10}).error).to.be.equal("notEnoughMana")
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:10}).error).to.be.equal("notEnoughMana")
 
             handService.isCardInHand = old
         })
@@ -154,9 +168,9 @@ describe("basic game setup", ()=>{
                 return true
             }
 
-            service.playCardFromPlayerHand("gameID","playerA",{cost:1}) // play the first card is ok, since the player starts with 1 mana
+            service.playCardFromPlayerHand(gameID,"playerA",{cost:1}) // play the first card is ok, since the player starts with 1 mana
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
 
             handService.isCardInHand = old
         })
@@ -169,17 +183,17 @@ describe("basic game setup", ()=>{
                 return true
             }
 
-            service.playCardFromPlayerHand("gameID","playerA",{cost:1}) // spend all available mana (1) on the first turn
+            service.playCardFromPlayerHand(gameID,"playerA",{cost:1}) // spend all available mana (1) on the first turn
 
-            service.endTurn("gameID", "playerA")
+            service.endTurn(gameID, "playerA")
 
-            service.endTurn("gameID", "playerB")
+            service.endTurn(gameID, "playerB")
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.undefined
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:1}).error).to.be.undefined
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.undefined
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:1}).error).to.be.undefined
 
-            expect(service.playCardFromPlayerHand("gameID","playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
+            expect(service.playCardFromPlayerHand(gameID,"playerA",{cost:1}).error).to.be.equal("notEnoughMana") // the second card with same cost should fail
 
             handService.isCardInHand = old
         })
@@ -256,6 +270,7 @@ describe("basic game setup", ()=>{
 
     describe("game loop functions", ()=>
     {
+        let gameID = ""
         beforeEach(() =>{
             gameID = service.newGame(["playerA", "playerB"])
         })
@@ -307,6 +322,8 @@ describe("basic game setup", ()=>{
         it("should have a method to query current remaining mana of active player", () => {
             expect(service.getCurrentPlayerRemainingMana(gameID)).to.be.equal(1)
         })
+
+        
 
         it("should have a method to query the cards in the hand of the current player", ()=>{
             expect(service.getPlayerCardsInHand(gameID)).to.be.an("Array").with.length(4)
