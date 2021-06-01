@@ -57,4 +57,26 @@ describe("basic Hand interface", ()=>{
         })
     })
 
+    describe ("discard mechanics", ()=>{
+        it("should check if the card is actually in the players hand", ()=>{
+            let testCard = {cost:3}
+            testedService.addCardToHand(gameID,"playerA", testCard)
+
+            let old = testedService.isCardInHand
+
+            let called = false
+            testedService.isCardInHand = function (gameID, playerID, card){
+                called = true
+                old(gameID, playerID, card)
+            }
+
+            testedService.discardCard(gameID,"playerA", testCard)
+
+            expect(called).to.be.equal(true)
+
+            testedService.isCardInHand = old
+
+        })
+    })
+
 })

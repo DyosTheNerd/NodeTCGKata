@@ -197,6 +197,42 @@ describe("basic game setup", ()=>{
 
             handService.isCardInHand = old
         })
+
+        it("should call hand service to remove card if playable", ()=>{
+
+            const deckService = require("../services/DeckService")
+
+            const handService = require("../services/HandService")
+
+            let oldDeck = deckService.drawCard
+
+            deckService.drawCard = function(gameID, playerName){
+                return {cost: 0}
+            }
+
+            let oldHand = handService.discardCard
+
+            let called = false
+            handService.discardCard = function(gameID, playerName, card) {
+                called = true
+                return true
+            }
+
+
+
+
+            service.playCardFromPlayerHand(gameID, "playerA", {cost: 0})
+
+
+
+            deckService.drawCard = oldDeck
+
+            handService.discardCard = oldHand
+
+            expect (called).to.be.equal(true)
+
+        })
+
     })
 
     describe("provision of life points function", ()=>{
@@ -323,7 +359,7 @@ describe("basic game setup", ()=>{
             expect(service.getCurrentPlayerRemainingMana(gameID)).to.be.equal(1)
         })
 
-        
+
 
         it("should have a method to query the cards in the hand of the current player", ()=>{
             expect(service.getPlayerCardsInHand(gameID)).to.be.an("Array").with.length(4)

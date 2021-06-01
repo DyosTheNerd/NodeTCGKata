@@ -121,6 +121,8 @@ module.exports = {
             theGame.winner = theGame.currentPlayer
         }
 
+        handService.discardCard(gameID, player, card)
+
         return true
     },
     getPlayerLifePoints : function(gameID, playerID){

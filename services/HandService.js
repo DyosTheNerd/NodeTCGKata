@@ -44,7 +44,11 @@ module.exports = {
             }
         })
         return found
-    }
+    },
 
+    discardCard : function (gameID, playerID, card){
+
+        return this.isCardInHand(gameID, playerID, card)
+    }
 
 }
