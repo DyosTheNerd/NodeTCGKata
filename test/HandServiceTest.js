@@ -5,7 +5,7 @@ describe("basic Hand interface", ()=>{
 
     let gameID = "gameID"
 
-    beforeEach("initialze hand", ()=>{
+    beforeEach("initialize hand", ()=>{
         testedService.initializeHand(gameID, "playerA" )
     })
 
@@ -24,7 +24,7 @@ describe("basic Hand interface", ()=>{
             expect(testedService.getHandForPlayer(gameID,"playerA" )).to.be.an("Array").that.contains(testCard)
         })
 
-        it("should return false, when the handsize becomes > 5 and not add the card to hand", ()=>{
+        it("should return false, when the hand size becomes > 5 and not add the card to hand", ()=>{
             testedService.addCardToHand(gameID,"playerA", {cost:0})
             testedService.addCardToHand(gameID,"playerA", {cost:0})
             testedService.addCardToHand(gameID,"playerA", {cost:0})
@@ -77,6 +77,50 @@ describe("basic Hand interface", ()=>{
             testedService.isCardInHand = old
 
         })
+
+        it ("should return an error if the card is not in hand", ()=>{
+            let testCard = {cost:2}
+            let notInHandCard = {cost:4}
+            testedService.addCardToHand(gameID,"playerA", testCard)
+
+            expect(testedService.discardCard(gameID,"playerA", notInHandCard).error).to.be.equal("cardNotInHand")
+        })
+
+        it ("should return true for a card from the hand", ()=>{
+            let testCard = {cost:5}
+
+            testedService.addCardToHand(gameID,"playerA", testCard)
+
+            expect(testedService.discardCard(gameID,"playerA", testCard)).to.be.equal(true)
+        })
+
+        it ("should decrease the number of cards in hand after discard", ()=>{
+            let testCard = {cost:5}
+
+            testedService.addCardToHand(gameID,"playerA", testCard)
+
+            testedService.discardCard(gameID,"playerA", testCard)
+
+            expect(testedService.getHandForPlayer(gameID,"playerA")).to.be.an("array").with.length(0)
+
+            expect(testedService.discardCard(gameID,"playerA", testCard).error).to.be.equal("cardNotInHand")
+        })
+
+        it("should also discard equivalent but  not necessary identical cards",()=>{
+
+            expect(testedService.getHandForPlayer(gameID,"playerA")).to.be.an("array").with.length(0)
+
+            let addedCard = {cost:5}
+
+            let discardableCard = {cost:5}
+
+            testedService.addCardToHand(gameID,"playerA", addedCard)
+
+            expect(testedService.discardCard(gameID,"playerA", discardableCard)).to.be.equal(true)
+
+            expect(testedService.getHandForPlayer(gameID,"playerA")).to.be.an("array").with.length(0)
+        })
+
     })
 
 })

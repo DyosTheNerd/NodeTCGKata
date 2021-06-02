@@ -12,6 +12,20 @@ const getHand = function(gameID, playerID){
     return hands[theHand]
 }
 
+const getIndexOfCard = function(gameID, playerID, card){
+    const hand = getHand(gameID,playerID)
+    let found = -1
+
+    hand.forEach((cardFromHand, ind) =>{
+
+        if(cardFromHand.cost === card.cost){
+            found = ind
+        }
+    })
+    return found
+}
+
+
 module.exports = {
     getHandForPlayer: function(gameID, playerID){
 
@@ -20,7 +34,7 @@ module.exports = {
     addCardToHand : function(gameID, playerID, card){
 
         const theHand = getHand(gameID,playerID)
-        if (theHand.length == 5){
+        if (theHand.length === 5){
             return false
         }
 
@@ -34,21 +48,21 @@ module.exports = {
     },
 
     isCardInHand : function(gameID, playerID, card){
-        const hand = getHand(gameID,playerID)
-        let found = false
 
-        hand.forEach(cardFromHand =>{
-
-            if(cardFromHand.cost == card.cost){
-                found = true
-            }
-        })
-        return found
+        return (getIndexOfCard(gameID, playerID, card) !== -1)
     },
 
     discardCard : function (gameID, playerID, card){
+        if (!this.isCardInHand(gameID, playerID, card)){
+            return {error: "cardNotInHand"}
+        }
+        let hand = getHand(gameID,playerID)
+        const ind = getIndexOfCard(gameID, playerID, card)
+        if (ind > -1) {
+            hand.splice(ind,1)
+        }
 
-        return this.isCardInHand(gameID, playerID, card)
+        return true
     }
 
 }
