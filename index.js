@@ -14,6 +14,6 @@ app.use(require("./routes/index"))
 
 
 app.listen(3000, () => {
-    'avaiting update events at http://localhost:3000/'
+    'awaiting update events at http://localhost:3000/'
 });
 console.log("go")
