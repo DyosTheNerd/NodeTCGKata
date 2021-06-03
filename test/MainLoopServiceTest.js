@@ -77,8 +77,8 @@ describe("basic game setup", ()=>{
         for (i = 0; i < 6; i++){
             expect(callParams.gameIDs[i]).to.be.equal(gameID)
         }
-        expect(callParams.playerNames.filter(item => item == "playerA")).to.be.an("Array").of.length(4)
-        expect(callParams.playerNames.filter(item => item == "playerB")).to.be.an("Array").of.length(3)
+        expect(callParams.playerNames.filter(item => item === "playerA")).to.be.an("Array").of.length(4)
+        expect(callParams.playerNames.filter(item => item === "playerB")).to.be.an("Array").of.length(3)
 
         handService.addCardToHand = old
     })
@@ -198,6 +198,8 @@ describe("basic game setup", ()=>{
             handService.isCardInHand = old
         })
 
+
+
         it("should call hand service to remove card if playable", ()=>{
 
             const deckService = require("../services/DeckService")
@@ -231,6 +233,65 @@ describe("basic game setup", ()=>{
 
             expect (called).to.be.equal(true)
 
+        })
+
+    })
+
+    describe("game ended spec", ()=>{
+
+        let gameID = ""
+        beforeEach(()=>{
+            gameID = service.newGame(["playerA", "playerB"])
+            for (let i = 0; i< 5 ; i++){
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+
+            for (let i = 0; i< 5 ; i++){
+                service.playCardFromPlayerHand(gameID,"playerA",{cost:6})
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+        })
+
+        it("should prevent players from ending their turn after the game is over", ()=>{
+
+            expect(service.endTurn(gameID, "playerA").error).to.be.equal("gameOver")
+
+        })
+
+        it("should have an function to archive the ended game", ()=>{
+            expect(service.archive(gameID)).to.be.equal(true)
+        })
+
+        it("should call the hand service to archive the hands for the game when archiving", ()=>{
+            let handService = require("../services/HandService")
+            let oldFunc = handService.archive
+
+            let called = false
+
+            handService.archive = function (gameID){
+                called = gameID
+            }
+            service.archive(gameID)
+            expect(called).to.be.equal(gameID)
+
+            handService.archive = oldFunc
+        })
+
+        it("should call the deck service to archive the deck for the game when archiving", ()=>{
+            let deckService = require("../services/DeckService")
+            let oldFunc = deckService.archive
+
+            let calledWith = false
+
+            deckService.archive = function (gameID){
+                calledWith = gameID
+            }
+            service.archive(gameID)
+            expect(calledWith).to.be.equal(gameID)
+
+            deckService.archive = oldFunc
         })
 
     })
@@ -320,7 +381,7 @@ describe("basic game setup", ()=>{
         })
 
         it("should prevent the end turn action, when a different player is handed and return false", ()=>{
-            expect(service.endTurn( gameID,"playerB")).to.be.equal(false)
+            expect(service.endTurn( gameID,"playerB").error).to.be.equal('wrongPlayer')
             expect(service.getCurrentPlayer(gameID)).to.be.equal("playerA")
         })
 
@@ -360,7 +421,6 @@ describe("basic game setup", ()=>{
         })
 
 
-
         it("should have a method to query the cards in the hand of the current player", ()=>{
             expect(service.getPlayerCardsInHand(gameID)).to.be.an("Array").with.length(4)
         })
@@ -387,5 +447,15 @@ describe("basic game setup", ()=>{
             expect(service.getPlayerCardsInHand(gameID, "playerA")).to.be.an("Array").with.length(5)
         })
 
+
+
     })
+
+    describe("methods return values for nonexisting games", ()=>{
+        it("should return error when query current remaining mana of active player of nonexistent game", () => {
+            expect(service.getCurrentPlayerRemainingMana("NonExistentGameIDA").error).to.be.equal("gameNotFound")
+        })
+
+    })
+
 })

@@ -38,5 +38,9 @@ module.exports = {
         let current = decks[deckID]
 
         return {cost: current.pop()}
+    },
+
+    archive : function (gameID){
+
     }
 }

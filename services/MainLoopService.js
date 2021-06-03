@@ -68,8 +68,11 @@ module.exports = {
         return gameID
     },
     endTurn: function(gameID, currentPlayer){
+        if(currentGames[gameID].isOver){
+            return {error: 'gameOver'}
+        }
         if (currentPlayer !== currentGames[gameID].currentPlayer){
-            return false
+            return {error: 'wrongPlayer'}
         }
         let nextPlayer = currentGames[gameID].players.filter(item => item !== currentGames[gameID].currentPlayer)[0]
 
@@ -79,7 +82,12 @@ module.exports = {
         return currentGames[gameID].maxMana[this.getCurrentPlayer(gameID)]
     },
     getCurrentPlayerRemainingMana : function(gameID){
-        return currentGames[gameID].currentMana[this.getCurrentPlayer(gameID)]
+        let currentGame = currentGames[gameID]
+        if (currentGame === undefined){
+            return {error: 'gameNotFound'}
+        }
+
+        return currentGame.currentMana[this.getCurrentPlayer(gameID)]
     },
 
     getPlayerCardsInHand : function(gameID, player){
@@ -127,6 +135,14 @@ module.exports = {
     },
     getPlayerLifePoints : function(gameID, playerID){
         return currentGames[gameID].currentLife[playerID]
+    },
+
+    archive : function(gameID){
+        handService.archive(gameID)
+
+        deckService.archive(gameID)
+
+        return true
     }
 
 

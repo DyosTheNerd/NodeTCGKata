@@ -63,6 +63,11 @@ module.exports = {
         }
 
         return true
+    },
+
+    archive : function (gameID){
+
     }
+
 
 }
