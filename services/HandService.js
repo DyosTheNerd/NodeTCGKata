@@ -4,11 +4,10 @@ const getHandID = function(gameID, playerID){
     return gameID + ":" + playerID
 }
 
+
 const getHand = function(gameID, playerID){
     const theHand = getHandID(gameID,playerID)
-    if (hands[theHand] === undefined){
-        hands[theHand] = []
-    }
+
     return hands[theHand]
 }
 
@@ -28,7 +27,9 @@ const getIndexOfCard = function(gameID, playerID, card){
 
 module.exports = {
     getHandForPlayer: function(gameID, playerID){
-
+        if(getHand(gameID,playerID) === undefined){
+            return {error:"handNotFound"}
+        }
         return getHand(gameID,playerID)
     },
     addCardToHand : function(gameID, playerID, card){
@@ -44,6 +45,12 @@ module.exports = {
     },
     initializeHand : function (gameID,playerID){
         const theHand = getHandID(gameID,playerID)
+        // if (hands[theHand] === undefined){
+        //     hands[theHand] = []
+        // }
+        // else {
+        //     return {error:"handAlreadyInitialized"}
+        // }
         hands[theHand] = []
     },
 
@@ -65,9 +72,10 @@ module.exports = {
         return true
     },
 
-    archive : function (gameID){
-
+    archive : function (gameID,player){
+        delete hands[getHandID(gameID,player)]
     }
+
 
 
 }

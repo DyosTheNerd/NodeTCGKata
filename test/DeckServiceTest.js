@@ -83,5 +83,13 @@ describe("basic start of turn draw", ()=>{
             }
             expect(lastCost).to.be.equal(-2)
         })
+
+        it("should delete game data from the cache when archiving", ()=>{
+
+
+            service.archive(gameID, "PlayerA")
+
+            expect(service.getNumberOfRemainingCardsInDeck(gameID, "PlayerA").error).to.be.equal("deckNotFound")
+        })
     })
 })

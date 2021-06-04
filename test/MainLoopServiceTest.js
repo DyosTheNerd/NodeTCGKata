@@ -294,6 +294,29 @@ describe("basic game setup", ()=>{
             deckService.archive = oldFunc
         })
 
+        it("should notify the archive service with the outcome", ()=>{
+            let archiveService = require("../services/ArchiveService")
+            let oldFunc = archiveService.archive
+            let calledWith = false
+
+            archiveService.archive = function(gameObj){
+                calledWith = gameObj
+            }
+
+            service.archive(gameID)
+            expect(calledWith.players).to.be.an("Array").that.contains("playerA")
+            expect(calledWith.players).to.be.an("Array").that.contains("playerB")
+            expect(calledWith.gameID).to.be.equal(gameID)
+            expect(calledWith.winner).to.be.equal("playerA")
+
+            archiveService.archive = oldFunc
+        })
+
+        it("should remove the game from current games after it was archived", ()=>{
+            service.archive(gameID)
+            expect(service.playCardFromPlayerHand(gameID, "playerA",{cost:6} ).error).to.equal("gameNotFound")
+        })
+
     })
 
     describe("provision of life points function", ()=>{

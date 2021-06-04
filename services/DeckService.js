@@ -30,6 +30,9 @@ module.exports = {
     getNumberOfRemainingCardsInDeck : function(gameID, playerName){
         let deckID = getDeckID(gameID,playerName)
         let current = decks[deckID]
+        if (current === undefined){
+            return {error:"deckNotFound"}
+        }
         return current.length
     },
 
@@ -40,7 +43,8 @@ module.exports = {
         return {cost: current.pop()}
     },
 
-    archive : function (gameID){
-
+    archive : function (gameID,playerName){
+        let deckID = getDeckID(gameID,playerName)
+        delete decks[deckID]
     }
 }

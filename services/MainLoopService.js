@@ -1,5 +1,6 @@
 const deckService = require("./DeckService")
 const handService = require("./HandService")
+const archiveService = require("./ArchiveService")
 
 let currentGames = {}
 
@@ -17,6 +18,7 @@ generateNewGameID = function(){
 setupBasicsAndPlayers = function (gameID, players){
     currentGames[gameID] = {}
     currentGames[gameID].players = players
+    currentGames[gameID].gameID = gameID
     currentGames[gameID].currentLife = {}
     currentGames[gameID].maxMana = {}
     currentGames[gameID].currentMana = {}
@@ -138,9 +140,18 @@ module.exports = {
     },
 
     archive : function(gameID){
+
+        let gameForArchive = currentGames[gameID]
+
         handService.archive(gameID)
 
         deckService.archive(gameID)
+
+        archiveService.archive(gameForArchive)
+
+        currentGames[gameID] = {}
+
+        delete currentGames[gameID]
 
         return true
     }

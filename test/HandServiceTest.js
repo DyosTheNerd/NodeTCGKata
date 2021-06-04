@@ -121,6 +121,14 @@ describe("basic Hand interface", ()=>{
             expect(testedService.getHandForPlayer(gameID,"playerA")).to.be.an("array").with.length(0)
         })
 
+        it("should delete game data from the cache when archiving", ()=>{
+
+
+            testedService.archive(gameID, "playerA")
+
+            expect(testedService.getHandForPlayer().error).to.be.equal("handNotFound")
+        })
+
     })
 
 })
