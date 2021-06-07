@@ -44,6 +44,20 @@ startTurnForPlayer = function(gameID, nextPlayer){
     return currentGames[gameID].currentPlayer
 }
 
+buildPlayerState = function(gameID, player){
+    let currentLife = getPlayerLifePointsInt(gameID,player)
+
+    return {
+        playerID : player,
+        currentLife : currentLife
+    }
+}
+
+
+getPlayerLifePointsInt = function(gameID,playerID) {
+    return currentGames[gameID].currentLife[playerID]
+}
+
 module.exports = {
     newGame : function (players){
 
@@ -136,7 +150,7 @@ module.exports = {
         return true
     },
     getPlayerLifePoints : function(gameID, playerID){
-        return currentGames[gameID].currentLife[playerID]
+        return getPlayerLifePointsInt(gameID,playerID)
     },
 
     archive : function(gameID){
@@ -154,7 +168,14 @@ module.exports = {
         delete currentGames[gameID]
 
         return true
+    },
+
+    getGameState : function(gameID){
+        const theGame = currentGames[gameID]
+        let theplayers = []
+        theGame.players.forEach(pl =>{theplayers.push(buildPlayerState(gameID, pl))})
+
+
+        return {players : theplayers}
     }
-
-
 }

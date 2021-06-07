@@ -102,6 +102,29 @@ describe("basic game setup", ()=>{
         deckService.drawCard = oldFunc
     })
 
+    it("should have a method to get the fully described game in one call", ()=>{
+
+        let gameID = service.newGame(["playerA", "playerB"])
+        expect(service.getGameState(gameID)).to.not.equal(null)
+    })
+
+    describe("gameState function spec", ()=>{
+        let gameID
+        beforeEach(()=>{
+            gameID = service.newGame(["playerA", "playerB"])
+        })
+
+        it("should return both players", ()=>{
+            expect(service.getGameState(gameID).players).to.be.an("Array").with.length(2)
+        })
+
+        it("player object should contain current life points", ()=>{
+            expect(service.getGameState(gameID).players[0].currentLife).to.be.equal(30)
+        })
+
+    })
+
+
     describe("playCardFromPlayerHand spec", ()=>{
         let gameID = ""
         beforeEach(() =>{

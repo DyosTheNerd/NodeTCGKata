@@ -1,5 +1,4 @@
 let decks = {}
-//0,0,1,1,2,2,2,3,3,3,3,4,4,4,5,5,6,6,7,8
 
 getDeckID = function(gameID, playerName)
 {
@@ -13,7 +12,12 @@ module.exports = {
 
         deckID = getDeckID(gameID,playerName)
 
-        decks[deckID] = [0,0,1,1,2,2,2,3,3,3,3,4,4,4,5,5,6,6,7,8]
+        decks[deckID] =
+              [ {cost:0},{cost:0},{cost:1},{cost:1},{cost:2},
+                {cost:2},{cost:2},{cost:3},{cost:3},{cost:3},
+                {cost:3},{cost:4},{cost:4},{cost:4},{cost:5},
+                {cost:5},{cost:6},{cost:6},{cost:7},{cost:8}
+                ]
 
         current  = decks[deckID]
 
@@ -40,7 +44,7 @@ module.exports = {
         let deckID = getDeckID(gameID,playerName)
         let current = decks[deckID]
 
-        return {cost: current.pop()}
+        return current.pop()
     },
 
     archive : function (gameID,playerName){
