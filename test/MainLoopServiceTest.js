@@ -108,6 +108,7 @@ describe("basic game setup", ()=>{
         expect(service.getGameState(gameID)).to.not.equal(null)
     })
 
+
     describe("gameState function spec", ()=>{
         let gameID
         beforeEach(()=>{
@@ -122,8 +123,20 @@ describe("basic game setup", ()=>{
             expect(service.getGameState(gameID).players[0].currentLife).to.be.equal(30)
         })
 
-    })
+        it("player object should contain current max mana points", ()=>{
+            expect(service.getGameState(gameID).players[0].maxMana).to.be.equal(1)
+        })
 
+        it("player object should contain current mana points", ()=>{
+            expect(service.getGameState(gameID).players[0].currentMana).to.be.equal(1)
+        })
+
+        it("player object should contain both player hand details", ()=>{
+            expect(service.getGameState(gameID).players[0].deck).to.be.an("Array").with.length(4)
+        })
+
+
+    })
 
     describe("playCardFromPlayerHand spec", ()=>{
         let gameID = ""

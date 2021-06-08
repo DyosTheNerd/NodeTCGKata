@@ -46,16 +46,39 @@ startTurnForPlayer = function(gameID, nextPlayer){
 
 buildPlayerState = function(gameID, player){
     let currentLife = getPlayerLifePointsInt(gameID,player)
-
+    let maxMana = getPlayerMaxManaInt(gameID,player)
+    let currentMana = getPlayerRemainingManaInt(gameID, player)
+    let deck = getPlayerCardsInHandInt(gameID, player)
     return {
         playerID : player,
-        currentLife : currentLife
+        currentLife : currentLife,
+        maxMana : maxMana,
+        currentMana: currentMana,
+        deck: deck
     }
 }
 
 
 getPlayerLifePointsInt = function(gameID,playerID) {
     return currentGames[gameID].currentLife[playerID]
+}
+
+getPlayerMaxManaInt = function(gameID,playerID){
+    return currentGames[gameID].maxMana[playerID]
+}
+
+getPlayerCardsInHandInt = function (gameID, playerID){
+
+    return handService.getHandForPlayer(gameID, playerID)
+}
+
+getPlayerRemainingManaInt = function(gameID, player){
+    let currentGame = currentGames[gameID]
+    if (currentGame === undefined){
+        return {error: 'gameNotFound'}
+    }
+
+    return currentGame.currentMana[player]
 }
 
 module.exports = {
@@ -95,7 +118,7 @@ module.exports = {
         return startTurnForPlayer(gameID,nextPlayer)
     },
     getCurrentPlayerMaxMana: function(gameID){
-        return currentGames[gameID].maxMana[this.getCurrentPlayer(gameID)]
+        return getPlayerMaxManaInt(gameID, this.getCurrentPlayer(gameID))
     },
     getCurrentPlayerRemainingMana : function(gameID){
         let currentGame = currentGames[gameID]
@@ -109,7 +132,7 @@ module.exports = {
     getPlayerCardsInHand : function(gameID, player){
         let requestedPlayer = player === undefined? this.getCurrentPlayer(gameID): player
 
-        return handService.getHandForPlayer(gameID, requestedPlayer)
+        return getPlayerCardsInHandInt(gameID, requestedPlayer)
     },
 
     getCurrentPlayer : function (gameID){

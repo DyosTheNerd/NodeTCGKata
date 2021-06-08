@@ -64,6 +64,8 @@ describe("basic start of turn draw", ()=>{
             expect(lastCost).to.be.equal(-2)
         })
 
+
+
         it("should randomize the deck", ()=>{
             let drawnCards = []
 
@@ -82,6 +84,10 @@ describe("basic start of turn draw", ()=>{
 
             }
             expect(lastCost).to.be.equal(-2)
+        })
+
+        it("should return -1 if the deck is empty", ()=>{
+            expect(false).to.equal(true)
         })
 
         it("should delete game data from the cache when archiving", ()=>{
