@@ -86,9 +86,18 @@ describe("basic start of turn draw", ()=>{
             expect(lastCost).to.be.equal(-2)
         })
 
-        it("should return -1 if the deck is empty", ()=>{
-            expect(false).to.equal(true)
+        it("should return error no cards in deck if the deck is empty", ()=>{
+            for (let i = 0; i < 30; i++){
+                service.drawCard(gameID, "PlayerA")
+            }
+
+            expect(service.drawCard(gameID, "PlayerA").error).to.equal("noCardInDeck")
         })
+
+        it("should return deckNotFound if a card is drawn for an unknown deck", ()=>{
+            expect(service.drawCard("unkwownGameID2", "UnknownPlayerA").error).to.equal("deckNotFound")
+        })
+
 
         it("should delete game data from the cache when archiving", ()=>{
 

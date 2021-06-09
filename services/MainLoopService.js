@@ -33,15 +33,34 @@ setupHands = function(gameID){
 
 }
 
+dealDamageToPlayer = function(game, player, dmgAmount){
+    game.currentLife[player] -= dmgAmount
+
+    if(game.currentLife[player] <= 0){
+        game.isOver = true
+        game.winner = game.currentPlayer
+    }
+
+}
+
 startTurnForPlayer = function(gameID, nextPlayer){
 
-    currentGames[gameID].currentPlayer = nextPlayer
-    currentGames[gameID].maxMana[currentGames[gameID].currentPlayer] += currentGames[gameID].maxMana[currentGames[gameID].currentPlayer] === 10? 0 : 1
-    currentGames[gameID].currentMana[currentGames[gameID].currentPlayer] = currentGames[gameID].maxMana[currentGames[gameID].currentPlayer]
+    let theGame = currentGames[gameID]
 
-    handService.addCardToHand(gameID,currentGames[gameID].currentPlayer,deckService.drawCard(gameID,currentGames[gameID].currentPlayer))
+    theGame.currentPlayer = nextPlayer
+    theGame.maxMana[theGame.currentPlayer] += theGame.maxMana[theGame.currentPlayer] === 10? 0 : 1
+    theGame.currentMana[theGame.currentPlayer] = theGame.maxMana[theGame.currentPlayer]
 
-    return currentGames[gameID].currentPlayer
+    let drawn = deckService.drawCard(gameID,theGame.currentPlayer)
+
+    if(drawn.error === "noCardInDeck"){
+        dealDamageToPlayer(theGame, theGame.currentPlayer,  1)
+    }
+    else {
+        handService.addCardToHand(gameID, theGame.currentPlayer,drawn)
+    }
+
+    return theGame.currentPlayer
 }
 
 buildPlayerState = function(gameID, player){
@@ -161,12 +180,7 @@ module.exports = {
 
         theGame.currentMana[theGame.currentPlayer] -= card.cost
 
-        theGame.currentLife[getInactivePlayer(gameID)] -= card.cost
-
-        if(theGame.currentLife[getInactivePlayer(gameID)] <= 0){
-            theGame.isOver = true
-            theGame.winner = theGame.currentPlayer
-        }
+        dealDamageToPlayer(theGame,getInactivePlayer(gameID), card.cost)
 
         handService.discardCard(gameID, player, card)
 

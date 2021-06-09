@@ -234,7 +234,57 @@ describe("basic game setup", ()=>{
             handService.isCardInHand = old
         })
 
+        it("should deal one damage to a player when the turn starts and the deck is empty", ()=>{
+            service.endTurn(gameID, "playerA")
 
+            const deckService = require("../services/DeckService")
+
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(30)
+
+            let old = deckService.drawCard
+            deckService.drawCard = function(gameID, playerName){
+                return {error:"noCardInDeck"}
+            }
+
+            service.endTurn(gameID, "playerB")
+
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(29)
+
+            deckService.drawCard = old
+
+        })
+
+        it("should let the player loose the game when loosing life by empty deck", ()=>{
+            const deckService = require("../services/DeckService")
+
+            service.endTurn(gameID, "playerA")
+
+            let old = deckService.drawCard
+            deckService.drawCard = function(gameID, playerName){
+                return {error:"noCardInDeck"}
+            }
+
+            for(let i = 0; i < 29; i++){
+                service.endTurn(gameID, "playerB")
+
+                expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(29 - i)
+
+                service.endTurn(gameID, "playerA")
+            }
+
+            service.endTurn(gameID, "playerB")
+
+
+            expect(service.getPlayerLifePoints(gameID, "playerA")).to.be.equal(0)
+
+            expect(service.endTurn(gameID, "playerA").error).to.be.equal("gameOver")
+
+
+
+            deckService.drawCard = old
+        })
+
+        
 
         it("should call hand service to remove card if playable", ()=>{
 

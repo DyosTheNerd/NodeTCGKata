@@ -44,7 +44,18 @@ module.exports = {
         let deckID = getDeckID(gameID,playerName)
         let current = decks[deckID]
 
-        return current.pop()
+        if (current === undefined){
+            return {error:"deckNotFound"}
+        }
+
+        if (current.length > 0) {
+            return current.pop()
+        }
+        else {
+            return {error:"noCardInDeck"}
+        }
+
+
     },
 
     archive : function (gameID,playerName){
