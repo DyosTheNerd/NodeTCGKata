@@ -284,8 +284,6 @@ describe("basic game setup", ()=>{
             deckService.drawCard = old
         })
 
-        
-
         it("should call hand service to remove card if playable", ()=>{
 
             const deckService = require("../services/DeckService")
@@ -323,6 +321,47 @@ describe("basic game setup", ()=>{
 
     })
 
+    describe("damage through deck empty", ()=>{
+        let gameID = ""
+
+        beforeEach(()=>{
+            gameID = service.newGame(["playerA", "playerB"])
+            for (let i = 0; i< 5 ; i++){
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+
+            for (let i = 0; i< 4 ; i++){
+                service.playCardFromPlayerHand(gameID,"playerA",{cost:6})
+                service.endTurn(gameID,"playerA")
+                service.endTurn(gameID,"playerB")
+            }
+        })
+
+        it("should declare the other player the winner, when a player dies due to deck empty", ()=>{
+            const deckService = require("../services/DeckService")
+
+            service.endTurn(gameID, "playerA")
+
+            let old = deckService.drawCard
+            deckService.drawCard = function(gameID, playerName){
+                return {error:"noCardInDeck"}
+            }
+
+            for(let i = 0; i < 6; i++){
+                service.endTurn(gameID, "playerB")
+
+                service.endTurn(gameID, "playerA")
+            }
+
+
+            expect(service.getWinner(gameID)).to.be.equal("playerA")
+
+
+            deckService.drawCard = old
+        })
+    })
+
     describe("game ended spec", ()=>{
 
         let gameID = ""
@@ -338,6 +377,12 @@ describe("basic game setup", ()=>{
                 service.endTurn(gameID,"playerA")
                 service.endTurn(gameID,"playerB")
             }
+        })
+
+        it("should have a method to query a games winner after end", ()=>{
+
+            expect(service.getWinner(gameID)).to.be.equal("playerA")
+
         })
 
         it("should prevent players from ending their turn after the game is over", ()=>{

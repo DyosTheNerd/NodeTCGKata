@@ -33,12 +33,16 @@ setupHands = function(gameID){
 
 }
 
-dealDamageToPlayer = function(game, player, dmgAmount){
+dealDamageToPlayer = function(game, player, dmgAmount, potentialWinner){
+    if(potentialWinner === undefined){
+        potentialWinner = game.currentPlayer
+    }
+
     game.currentLife[player] -= dmgAmount
 
     if(game.currentLife[player] <= 0){
         game.isOver = true
-        game.winner = game.currentPlayer
+        game.winner = potentialWinner
     }
 
 }
@@ -47,6 +51,7 @@ startTurnForPlayer = function(gameID, nextPlayer){
 
     let theGame = currentGames[gameID]
 
+    let oldPlayer = theGame.currentPlayer
     theGame.currentPlayer = nextPlayer
     theGame.maxMana[theGame.currentPlayer] += theGame.maxMana[theGame.currentPlayer] === 10? 0 : 1
     theGame.currentMana[theGame.currentPlayer] = theGame.maxMana[theGame.currentPlayer]
@@ -54,7 +59,7 @@ startTurnForPlayer = function(gameID, nextPlayer){
     let drawn = deckService.drawCard(gameID,theGame.currentPlayer)
 
     if(drawn.error === "noCardInDeck"){
-        dealDamageToPlayer(theGame, theGame.currentPlayer,  1)
+        dealDamageToPlayer(theGame, theGame.currentPlayer,  1, oldPlayer)
     }
     else {
         handService.addCardToHand(gameID, theGame.currentPlayer,drawn)
@@ -214,5 +219,13 @@ module.exports = {
 
 
         return {players : theplayers}
+    },
+
+    getWinner : function(gameID){
+        const theGame = currentGames[gameID]
+
+        return theGame.winner
     }
+
+
 }
