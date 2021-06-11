@@ -132,7 +132,12 @@ describe("basic game setup", ()=>{
         })
 
         it("player object should contain both player hand details", ()=>{
-            expect(service.getGameState(gameID).players[0].deck).to.be.an("Array").with.length(4)
+            expect(service.getGameState(gameID).players[0].hand).to.be.an("Array").with.length(4)
+        })
+
+        it("player object should contain both player deck card number", ()=>{
+            expect(service.getGameState(gameID).players[0].remainingDeckSize).to.be.equal(16)
+            expect(service.getGameState(gameID).players[0].remainingDeckSize).to.be.equal(16)
         })
 
 

@@ -72,13 +72,15 @@ buildPlayerState = function(gameID, player){
     let currentLife = getPlayerLifePointsInt(gameID,player)
     let maxMana = getPlayerMaxManaInt(gameID,player)
     let currentMana = getPlayerRemainingManaInt(gameID, player)
-    let deck = getPlayerCardsInHandInt(gameID, player)
+    let hand = getPlayerCardsInHandInt(gameID, player)
+    let deckSize = deckService.getNumberOfRemainingCardsInDeck(gameID, player)
     return {
         playerID : player,
         currentLife : currentLife,
         maxMana : maxMana,
         currentMana: currentMana,
-        deck: deck
+        remainingDeckSize : deckSize,
+        hand: hand
     }
 }
 
