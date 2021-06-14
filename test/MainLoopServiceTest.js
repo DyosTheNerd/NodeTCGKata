@@ -140,6 +140,52 @@ describe("basic game setup", ()=>{
             expect(service.getGameState(gameID).players[0].remainingDeckSize).to.be.equal(16)
         })
 
+        it("should contain information about discarded cards", ()=>{
+            expect(service.getGameState(gameID).players[0].discard).to.be.an("Array")
+        })
+
+
+    })
+
+
+    describe("discarded cards mechanics", ()=>{
+
+        let gameID = ""
+        beforeEach(() =>{
+            gameID = service.newGame(["playerA", "playerB"])
+        })
+
+        it ("should have a function to query the discarded cards", ()=>{
+            expect(service.getDiscardedCards(gameID, "playerA")).to.be.an("Array")
+        })
+
+        it("should add a card to the discard pile after it has been played", ()=>{
+            const deckService = require("../services/DeckService")
+
+            let old = deckService.drawCard
+            deckService.drawCard = function(gameID, playerName){
+                return {cost:1}
+            }
+
+            service.endTurn(gameID,  "playerA")
+
+            service.playCardFromPlayerHand(gameID,"playerB",{cost:1})
+
+            expect(service.getDiscardedCards(gameID, "playerB")[0].cost).to.be.equal(1)
+
+            deckService.drawCard = old
+        })
+
+        it("should add cards to the discard that are burned due to handsize limit", ()=>{
+            for (let i = 0; i < 5; i++){
+                service.endTurn(gameID,  "playerA")
+                service.endTurn(gameID,  "playerB")
+            }
+            expect(service.getDiscardedCards(gameID, "playerB").length).to.be.be.equal(3)
+            expect(service.getDiscardedCards(gameID, "playerA").length).to.be.be.equal(4)
+
+        })
+
 
     })
 

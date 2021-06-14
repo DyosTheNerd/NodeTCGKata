@@ -22,10 +22,12 @@ setupBasicsAndPlayers = function (gameID, players){
     currentGames[gameID].currentLife = {}
     currentGames[gameID].maxMana = {}
     currentGames[gameID].currentMana = {}
+    currentGames[gameID].discard = {}
     players.forEach(pl=>{
         currentGames[gameID].maxMana[pl] = 0
         currentGames[gameID].currentMana[pl] = 0
         currentGames[gameID].currentLife[pl] = 0
+        currentGames[gameID].discard[pl] = []
     })
 }
 
@@ -62,7 +64,9 @@ startTurnForPlayer = function(gameID, nextPlayer){
         dealDamageToPlayer(theGame, theGame.currentPlayer,  1, oldPlayer)
     }
     else {
-        handService.addCardToHand(gameID, theGame.currentPlayer,drawn)
+        if (!handService.addCardToHand(gameID, theGame.currentPlayer,drawn)){
+            theGame.discard[nextPlayer].push(drawn)
+        }
     }
 
     return theGame.currentPlayer
@@ -74,13 +78,17 @@ buildPlayerState = function(gameID, player){
     let currentMana = getPlayerRemainingManaInt(gameID, player)
     let hand = getPlayerCardsInHandInt(gameID, player)
     let deckSize = deckService.getNumberOfRemainingCardsInDeck(gameID, player)
+    let theDiscard = currentGames[gameID].discard[player]
+    let theHandSize = hand.length
     return {
         playerID : player,
         currentLife : currentLife,
         maxMana : maxMana,
         currentMana: currentMana,
         remainingDeckSize : deckSize,
-        hand: hand
+        hand: hand,
+        discard : theDiscard,
+        handSize : theHandSize
     }
 }
 
@@ -189,7 +197,9 @@ module.exports = {
 
         dealDamageToPlayer(theGame,getInactivePlayer(gameID), card.cost)
 
-        handService.discardCard(gameID, player, card)
+        if (handService.discardCard(gameID, player, card)){
+            theGame.discard[player].push(card)
+        }
 
         return true
     },
@@ -227,6 +237,13 @@ module.exports = {
         const theGame = currentGames[gameID]
 
         return theGame.winner
+    },
+
+    getDiscardedCards : function (gameID, player) {
+        const theGame = currentGames[gameID]
+
+
+        return theGame.discard[player]
     }
 
 
