@@ -25,6 +25,23 @@ describe("game API functions", ()=> {
         expect(theSpectatorState.players[1].handSize).to.be.equal(3)
     })
 
+    it("should not have hand details for player 2 when the game state is queried for player 1", ()=>{
+        let theSpectatorState = service.getGameState(gameID, "playerA")
+
+        expect(theSpectatorState.players[0].hand).to.be.an("Array").with.length(4)
+        expect(theSpectatorState.players[1].hand).to.be.null
+        expect(theSpectatorState.players[0].handSize).to.be.equal(4)
+        expect(theSpectatorState.players[1].handSize).to.be.equal(3)
+    })
+
+    it("should not have hand details for player 1 when the game state is queried for player 2", ()=>{
+        let theSpectatorState = service.getGameState(gameID, "playerB")
+
+        expect(theSpectatorState.players[1].hand).to.be.an("Array").with.length(3)
+        expect(theSpectatorState.players[0].hand).to.be.null
+        expect(theSpectatorState.players[0].handSize).to.be.equal(4)
+        expect(theSpectatorState.players[1].handSize).to.be.equal(3)
+    })
 
 
 })
