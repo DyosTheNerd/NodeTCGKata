@@ -5,6 +5,10 @@ module.exports = {
 
         let totalState = mainLoopService.getGameState(gameID)
 
+        if (totalState.error !== undefined){
+            return totalState.error
+        }
+
         if(forPlayer !== totalState.players[0].playerID){
             totalState.players[0].hand = null
         }

@@ -226,6 +226,12 @@ module.exports = {
 
     getGameState : function(gameID){
         const theGame = currentGames[gameID]
+
+        if(theGame === undefined){
+            throw new Error("gameNotFound")
+        }
+
+
         let theplayers = []
         theGame.players.forEach(pl =>{theplayers.push(buildPlayerState(gameID, pl))})
 
