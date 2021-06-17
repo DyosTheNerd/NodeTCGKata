@@ -7,7 +7,7 @@ let gameService = require("../services/GameService")
 
 router.get("/", (req, res,next) =>{
     try {
-        res.json = gameService.getGameState(req.params.id)
+        res.json = gameService.getGameState(req.query.id)
     }
     catch(e){
         next(e)
